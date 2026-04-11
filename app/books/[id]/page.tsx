@@ -35,7 +35,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
 
   const handleAddToCart = () => {
     if (!book) return;
-    
+
     addToCart({
       book_id: book.id,
       title: book.title,
@@ -43,7 +43,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
       image: book.image,
       quantity,
     });
-    
+
     toast.success(`${quantity} adet kitapsepete eklendi.`);
     router.push('/cart');
   };
@@ -104,18 +104,18 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
               <Badge className="w-max mb-6" variant="default" py-1 px-3>
                 {book.category || 'Roman'}
               </Badge>
-              
+
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 text-foreground">{book.title}</h1>
               <p className="text-xl text-muted-foreground mb-8 font-medium">{book.author}</p>
-              
+
               <div className="text-4xl font-extrabold text-primary mb-8">
                 ₺{Math.abs(book.price).toFixed(2)}
               </div>
 
               <div className="flex flex-wrap items-center gap-6 mb-12">
                 <div className="flex items-center bg-secondary rounded-md p-1 border">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
@@ -123,8 +123,8 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                     <Minus className="h-4 w-4" />
                   </Button>
                   <span className="w-12 text-center text-lg font-bold">{quantity}</span>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(q => Math.min(book.stock, q + 1))}
                     disabled={quantity >= book.stock}
@@ -137,7 +137,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
                 </div>
               </div>
 
-              <Button 
+              <Button
                 size="lg"
                 onClick={handleAddToCart}
                 className="w-full md:w-auto px-12 py-6 text-lg mt-auto gap-2"
