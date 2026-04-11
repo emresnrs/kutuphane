@@ -9,8 +9,8 @@ export default function Navbar() {
   const { totalItems } = useCart();
 
   return (
-    <nav className="glass sticky top-4 mx-4 md:mx-auto max-w-7xl z-50 mb-12 px-6 py-4 flex items-center justify-between">
-      <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-200">
+    <nav className="glass sticky top-4 mx-4 md:mx-auto w-full max-w-7xl z-50 mb-12 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-200 flex-shrink-0 mr-4">
         Kutuphane
       </Link>
 
