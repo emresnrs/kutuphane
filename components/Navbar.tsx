@@ -3,39 +3,58 @@
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ShoppingCart, User, LogOut } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { totalItems } = useCart();
 
   return (
-    <nav className="glass sticky top-4 mx-4 md:mx-auto w-full max-w-7xl z-50 mb-12 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-      <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-primary-200 flex-shrink-0 mr-4">
-        Kutuphane
-      </Link>
-
+    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 w-full z-50 px-6 py-4 flex flex-wrap items-center justify-between gap-4 mb-8">
       <div className="flex items-center gap-6">
-        <Link href="/" className="hover:text-primary-300 transition-colors">Ana Sayfa</Link>
-        <Link href="/cart" className="hover:text-primary-300 transition-colors flex items-center gap-2">
-          Sepet
+        <Link href="/" className="text-xl font-bold mr-4 flex items-center gap-2">
+          <span className="bg-primary text-primary-foreground p-1 rounded-md">K</span>
+          <span>Kutuphane</span>
+        </Link>
+        <div className="hidden md:flex gap-4">
+          <Link href="/" className={buttonVariants({ variant: 'ghost' })}>
+            Ana Sayfa
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <Link href="/cart" className={cn(buttonVariants({ variant: 'outline', size: 'icon' }), "relative group")}>
+          <ShoppingCart className="w-4 h-4" />
+          <span className="sr-only">Sepet</span>
           {totalItems > 0 && (
-            <span className="bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+            <Badge className="absolute -top-2 -right-2 px-1.5 min-w-[1.25rem] flex items-center justify-center h-5">
               {totalItems}
-            </span>
+            </Badge>
           )}
         </Link>
         
         {user ? (
-          <div className="flex items-center gap-4">
-            <Link href="/profile" className="hover:text-primary-300 transition-colors">Siparişlerim</Link>
-            <button onClick={logout} className="text-red-400 hover:text-red-300 transition-colors">
-              Çıkış
-            </button>
+          <div className="flex items-center gap-2">
+            <Link href="/profile" className={cn(buttonVariants({ variant: 'ghost' }), "gap-2")}>
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">Siparişlerim</span>
+            </Link>
+            <Button variant="destructive" size="icon" onClick={logout} title="Çıkış Yap">
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="hover:text-primary-300 transition-colors">Giriş Yap</Link>
-            <Link href="/register" className="btn-primary py-2 px-4 rounded-lg">Kayıt Ol</Link>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className={buttonVariants({ variant: 'ghost' })}>
+              Giriş Yap
+            </Link>
+            <Link href="/register" className={buttonVariants({ variant: 'default' })}>
+              Kayıt Ol
+            </Link>
           </div>
         )}
       </div>
