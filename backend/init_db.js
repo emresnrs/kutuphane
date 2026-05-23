@@ -22,7 +22,9 @@ const initDB = async () => {
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) UNIQUE,
+        username VARCHAR(255),
         password TEXT,
+        profile_image LONGTEXT,
         is_admin BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -31,12 +33,20 @@ const initDB = async () => {
     await connection.query(`
       CREATE TABLE IF NOT EXISTS books (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255),
+        title VARCHAR(500),
         author VARCHAR(255),
+        publisher VARCHAR(255),
         price DECIMAL(10, 2),
-        stock INT,
-        category VARCHAR(100),
+        stock INT DEFAULT 0,
+        category VARCHAR(255),
+        subcategory VARCHAR(100),
         image TEXT,
+        product_url TEXT,
+        description LONGTEXT,
+        page_count INT,
+        publication_year INT,
+        language VARCHAR(50),
+        barcode VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);

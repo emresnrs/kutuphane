@@ -44,8 +44,7 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
       quantity,
     });
 
-    toast.success(`${quantity} adet kitapsepete eklendi.`);
-    router.push('/cart');
+    toast.success(`${quantity} adet kitap sepete eklendi.`);
   };
 
   if (isLoading) {
@@ -101,12 +100,29 @@ export default function BookDetail({ params }: { params: Promise<{ id: string }>
 
             {/* Details */}
             <div className="w-full md:w-2/3 flex flex-col pt-4">
-              <Badge className="w-max mb-6" variant="default" py-1 px-3>
-                {book.category || 'Roman'}
-              </Badge>
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <Badge className="w-max py-1 px-3" variant="default">
+                  {book.category || 'Roman'}
+                </Badge>
+                <Badge className="w-max py-1 px-3 bg-white text-black hover:bg-gray-200 border-none">
+                  {book.page_count ? `${book.page_count} Sayfa` : 'Sayfa Sayısı Belirtilmemiş'}
+                </Badge>
+                <Badge className="w-max py-1 px-3 bg-white text-black hover:bg-gray-200 border-none">
+                  {book.publication_year ? `${book.publication_year} Basım` : 'Basım Yılı Belirtilmemiş'}
+                </Badge>
+              </div>
 
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 text-foreground">{book.title}</h1>
               <p className="text-xl text-muted-foreground mb-8 font-medium">{book.author}</p>
+
+              {book.description && (
+                <div className="mb-8 p-6 bg-secondary/30 rounded-xl border border-border/50">
+                  <h3 className="font-semibold text-lg mb-3">Kitap Özeti</h3>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+                    {book.description}
+                  </p>
+                </div>
+              )}
 
               <div className="text-4xl font-extrabold text-primary mb-8">
                 ₺{Math.abs(book.price).toFixed(2)}

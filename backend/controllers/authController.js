@@ -27,7 +27,9 @@ exports.register = async (req, res) => {
       user: {
         id: result.insertId,
         email,
-        is_admin: is_admin || false
+        username: null,
+        is_admin: is_admin || false,
+        profile_image: null
       }
     });
   } catch (err) {
@@ -67,11 +69,61 @@ exports.login = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        is_admin: user.is_admin
+        username: user.username,
+        is_admin: user.is_admin,
+        profile_image: user.profile_image
       }
     });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: 'Server error during login' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, profileImage, username } = req.body;
+    const userId = req.user.id;
+
+    // Fetch user
+    const [userResult] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (userResult.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const user = userResult[0];
+
+    // If changing password, verify current password
+    if (currentPassword && newPassword) {
+      const validPassword = await bcrypt.compare(currentPassword, user.password);
+      if (!validPassword) {
+        return res.status(400).json({ error: 'Mevcut şifre hatalı' });
+      }
+      
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+      
+      await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+    }
+
+    // If profile image is provided
+    if (profileImage !== undefined) {
+      await pool.query('UPDATE users SET profile_image = ? WHERE id = ?', [profileImage, userId]);
+    }
+
+    // If username is provided
+    if (username !== undefined) {
+      await pool.query('UPDATE users SET username = ? WHERE id = ?', [username, userId]);
+    }
+
+    // Fetch updated user to return
+    const [updatedUserResult] = await pool.query('SELECT id, email, username, is_admin, profile_image FROM users WHERE id = ?', [userId]);
+    
+    res.json({
+      message: 'Profil güncellendi',
+      user: updatedUserResult[0]
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: 'Server error during profile update' });
   }
 };

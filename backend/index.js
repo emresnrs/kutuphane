@@ -6,7 +6,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -18,7 +18,7 @@ const authRoutes = require('./routes/auth.js');
 const booksRoutes = require('./routes/books.js');
 const ordersRoutes = require('./routes/orders.js');
 
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/books', booksRoutes);
 app.use('/api/orders', ordersRoutes);
 

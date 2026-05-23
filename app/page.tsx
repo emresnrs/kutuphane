@@ -13,21 +13,33 @@ interface Book {
   id: number;
   title: string;
   author: string;
+  publisher: string;
   price: string;
   stock: number;
   category: string;
+  subcategory: string;
   image: string;
+  page_count: number | null;
+  publication_year: number | null;
+  language: string;
+  description: string | null;
 }
 
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const loadBooks = async () => {
       try {
-        const data = await fetchAPI('/books');
-        setBooks(data);
+        // Tüm kitapları çek, rastgele 4 tanesini seç
+        const data = await fetchAPI('/books?limit=100&page=1');
+        const allBooks: Book[] = data.books ?? data;
+        setTotal(data.total ?? allBooks.length);
+        // Fisher-Yates shuffle ile 4 rastgele kitap
+        const shuffled = [...allBooks].sort(() => Math.random() - 0.5);
+        setBooks(shuffled.slice(0, 4));
       } catch (error) {
         console.error('Failed to load books:', error);
       } finally {
@@ -52,7 +64,7 @@ export default function Home() {
             Okuma serüveninize premium bir dokunuşla başlayın.
           </p>
           <div className="pt-4 flex gap-4 justify-center flex-wrap">
-            <Link href="#books" className={buttonVariants({ size: 'lg' })}>
+            <Link href="/books" className={buttonVariants({ size: 'lg' })}>
               Keşfetmeye Başla
             </Link>
             <Link href="/register" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
@@ -66,14 +78,17 @@ export default function Home() {
       <section id="books" className="space-y-8 scroll-mt-24">
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Öne Çıkan Kitaplar</h2>
+          <Link href="/books" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'gap-1')}>
+            Tümü →
+          </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <Card key={i} className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="flex flex-col gap-4 p-0">
                 <CardHeader className="p-0">
-                  <Skeleton className="h-64 w-full rounded-t-xl" />
+                  <Skeleton className="aspect-[2/3] w-full rounded-t-xl" />
                 </CardHeader>
                 <CardContent className="space-y-2 p-4">
                   <Skeleton className="h-4 w-3/4" />
@@ -92,10 +107,10 @@ export default function Home() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {books.map((book) => (
-              <Card key={book.id} className="group flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300">
-                <div className="relative h-64 bg-muted overflow-hidden">
+              <Card key={book.id} className="group flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 p-0">
+                <Link href={`/books/${book.id}`} className="relative aspect-[2/3] bg-muted overflow-hidden block">
                   {book.image ? (
                     <img 
                       src={book.image} 
@@ -108,17 +123,22 @@ export default function Home() {
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
-                    <Badge variant="secondary" className="backdrop-blur-md bg-background/80">
+                    <Badge variant="secondary" className="backdrop-blur-md bg-background/80 shadow-sm">
                       {book.category || 'Genel'}
                     </Badge>
                   </div>
-                </div>
+                </Link>
                 
                 <CardHeader className="p-4 pb-2 flex-grow">
-                  <CardTitle className="text-xl line-clamp-1 group-hover:text-primary transition-colors">
-                    {book.title}
-                  </CardTitle>
+                  <Link href={`/books/${book.id}`}>
+                    <CardTitle className="text-xl line-clamp-2 hover:text-primary transition-colors">
+                      {book.title}
+                    </CardTitle>
+                  </Link>
                   <p className="text-sm text-muted-foreground">{book.author}</p>
+                  {book.publisher && (
+                    <p className="text-xs text-muted-foreground/70">{book.publisher}</p>
+                  )}
                 </CardHeader>
                 
                 <CardContent className="p-4 pt-0">

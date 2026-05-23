@@ -73,3 +73,26 @@ exports.getUserOrders = async (req, res) => {
     res.status(500).json({ error: 'Server error retrieving orders' });
   }
 };
+
+// DELETE /api/orders/:id
+exports.cancelOrder = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const order_id = req.params.id;
+
+    // Check if order exists and belongs to the user
+    const [orderCheck] = await pool.query('SELECT id FROM orders WHERE id = ? AND user_id = ?', [order_id, user_id]);
+    
+    if (orderCheck.length === 0) {
+      return res.status(404).json({ error: 'Sipariş bulunamadı veya bu işlem için yetkiniz yok.' });
+    }
+
+    // Delete the order (order_items will be deleted automatically due to ON DELETE CASCADE)
+    await pool.query('DELETE FROM orders WHERE id = ?', [order_id]);
+
+    res.json({ message: 'Sipariş başarıyla iptal edildi.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: 'Server error cancelling order' });
+  }
+};
