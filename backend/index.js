@@ -17,10 +17,12 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth.js');
 const booksRoutes = require('./routes/books.js');
 const ordersRoutes = require('./routes/orders.js');
+const adminRoutes = require('./routes/admin.js');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', booksRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

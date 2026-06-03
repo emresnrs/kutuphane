@@ -5,7 +5,7 @@ exports.createOrder = async (req, res) => {
   const connection = await pool.getConnection();
   
   try {
-    const { total_price, items } = req.body;
+    const { total_price, items, payment_card_last4 } = req.body;
     const user_id = req.user.id;
     
     // Start transaction
@@ -13,8 +13,8 @@ exports.createOrder = async (req, res) => {
     
     // Create order
     const [orderResult] = await connection.query(
-      'INSERT INTO orders (user_id, total_price) VALUES (?, ?)',
-      [user_id, total_price]
+      'INSERT INTO orders (user_id, total_price, status, payment_card_last4) VALUES (?, ?, ?, ?)',
+      [user_id, total_price, 'paid', payment_card_last4 || null]
     );
     
     const orderId = orderResult.insertId;

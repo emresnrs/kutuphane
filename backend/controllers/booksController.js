@@ -1,4 +1,5 @@
 const pool = require('../db');
+const { logAction, getIp } = require('../middleware/auditLog');
 
 // GET /api/books — filtreleme & arama desteğiyle
 exports.getAllBooks = async (req, res) => {
@@ -89,7 +90,18 @@ exports.createBook = async (req, res) => {
        image, product_url, description, page_count, publication_year, language, barcode]
     );
 
-    const [newBook] = await pool.query('SELECT * FROM books WHERE id = ?', [result.insertId]);
+    const newBookId = result.insertId;
+    const [newBook] = await pool.query('SELECT * FROM books WHERE id = ?', [newBookId]);
+
+    await logAction(
+      req.user?.id ?? null,
+      'CREATE_BOOK',
+      'book',
+      newBookId,
+      { title, author, publisher, price, stock: stock ?? 0, category },
+      getIp(req)
+    );
+
     res.status(201).json(newBook[0]);
   } catch (err) {
     console.error(err.message);
@@ -106,6 +118,10 @@ exports.updateBook = async (req, res) => {
       image, product_url, description, page_count, publication_year, language, barcode
     } = req.body;
 
+    // Eski kitap bilgisini al (diff için)
+    const [[oldBook]] = await pool.query('SELECT id, title, author, price, stock FROM books WHERE id = ?', [id]);
+    if (!oldBook) return res.status(404).json({ error: 'Book not found' });
+
     const [result] = await pool.query(
       `UPDATE books
        SET title=?, author=?, publisher=?, price=?, stock=?, category=?, subcategory=?,
@@ -120,6 +136,24 @@ exports.updateBook = async (req, res) => {
     }
 
     const [updatedBook] = await pool.query('SELECT * FROM books WHERE id = ?', [id]);
+
+    await logAction(
+      req.user?.id ?? null,
+      'UPDATE_BOOK',
+      'book',
+      parseInt(id),
+      {
+        title,
+        author,
+        previousPrice: oldBook.price,
+        newPrice: price,
+        previousStock: oldBook.stock,
+        newStock: stock,
+        category,
+      },
+      getIp(req)
+    );
+
     res.json(updatedBook[0]);
   } catch (err) {
     console.error(err.message);
@@ -132,11 +166,24 @@ exports.deleteBook = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Kitap bilgisini sil öncesi kaydet
+    const [[book]] = await pool.query('SELECT id, title, author, price FROM books WHERE id = ?', [id]);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+
     const [result] = await pool.query('DELETE FROM books WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Book not found' });
     }
+
+    await logAction(
+      req.user?.id ?? null,
+      'DELETE_BOOK',
+      'book',
+      parseInt(id),
+      { title: book.title, author: book.author, price: book.price },
+      getIp(req)
+    );
 
     res.json({ message: 'Book deleted successfully' });
   } catch (err) {

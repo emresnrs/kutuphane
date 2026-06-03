@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, User, LogOut } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Navbar() {
@@ -39,6 +39,15 @@ export default function Navbar() {
         
         {user ? (
           <div className="flex items-center gap-2">
+            {user.is_admin && (
+              <Link
+                href="/admin"
+                className={cn(buttonVariants({ variant: 'outline' }), "gap-2 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground")}
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Admin Panel</span>
+              </Link>
+            )}
             <Link href="/profile" className={cn(buttonVariants({ variant: 'ghost' }), "gap-2")}>
               <User className="w-4 h-4" />
               <span className="hidden sm:inline">Siparişlerim</span>

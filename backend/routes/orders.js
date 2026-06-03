@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ordersController = require('../controllers/ordersController');
-const authenticateToken = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Protect order routes with authenticateToken
 router.post('/', authenticateToken, ordersController.createOrder);

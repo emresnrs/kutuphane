@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
-import { fetchAPI } from '@/utils/api';
+
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -13,43 +13,18 @@ import { toast } from 'sonner';
 import { Trash2, ShoppingBag } from 'lucide-react';
 
 export default function Cart() {
-  const { cart, removeFromCart, clearCart, totalPrice, totalItems } = useCart();
+  const { cart, removeFromCart, totalPrice, totalItems } = useCart();
   const { user } = useAuth();
   const router = useRouter();
-  const [isOrdering, setIsOrdering] = useState(false);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!user) {
       toast.error('Devam etmek için giriş yapmalısınız.');
       router.push('/login');
       return;
     }
-
     if (cart.length === 0) return;
-
-    setIsOrdering(true);
-
-    try {
-      await fetchAPI('/orders', {
-        method: 'POST',
-        body: JSON.stringify({
-          total_price: totalPrice,
-          items: cart.map(item => ({
-            book_id: item.book_id,
-            quantity: item.quantity,
-            price: item.price
-          }))
-        })
-      });
-
-      clearCart();
-      toast.success('Siparişiniz başarıyla alındı!');
-      router.push('/profile');
-    } catch (err: any) {
-      toast.error(err.message || 'Sipariş oluşturulamadı.');
-    } finally {
-      setIsOrdering(false);
-    }
+    router.push('/checkout');
   };
 
   if (cart.length === 0) {
@@ -127,9 +102,8 @@ export default function Cart() {
                 size="lg"
                 className="w-full"
                 onClick={handleCheckout}
-                disabled={isOrdering}
               >
-                {isOrdering ? 'Siparişiniz Alınıyor...' : (user ? 'Siparişi Tamamla' : 'Giriş Yap ve Devam Et')}
+                {user ? 'Ödemeye Geç →' : 'Giriş Yap ve Devam Et'}
               </Button>
             </CardFooter>
           </Card>
